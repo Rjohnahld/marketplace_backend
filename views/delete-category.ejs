@@ -1,0 +1,19 @@
+<h1 class="mb-4">Delete Category</h1>
+<div class="card card-body">
+  <% if (category.listing_count > 0) { %>
+    <div class="alert alert-warning mb-3">
+      <strong><%= category.name %></strong> can't be deleted because it still has
+      <%= category.listing_count %> listing(s). Move or delete those listings first.
+    </div>
+    <div>
+      <a class="btn btn-outline-secondary" href="/categories">Back to categories</a>
+    </div>
+  <% } else { %>
+    <p>Are you sure you want to delete the category <strong><%= category.name %></strong>?</p>
+    <p class="text-danger mb-3">This cannot be undone.</p>
+    <form method="POST" class="d-flex gap-2">
+      <button type="submit" class="btn btn-danger">Delete</button>
+      <a class="btn btn-outline-secondary" href="/categories">Cancel</a>
+    </form>
+  <% } %>
+</div>

@@ -245,6 +245,39 @@ app.post("/category/:id/edit", async function (req, res, next) {
     }
 });
 
+app.get("/category/:id/delete", async function (req, res, next) {
+    try {
+        const [rows] = await dbConnection.execute(
+            `SELECT categories.category_id, categories.name,
+                COUNT(listings.listing_id) AS listing_count
+             FROM categories
+             LEFT JOIN listings ON listings.category_id = categories.category_id
+             WHERE categories.category_id = ?
+             GROUP BY categories.category_id, categories.name`, [req.params.id]);
+        if (!rows[0]) {
+            return res.status(404).send("Category not found");
+        }
+        res.render("delete-category", { pageTitle: "Delete Category", category: rows[0] });
+    } catch (e) {
+        next(e);
+    }
+});
+
+app.post("/category/:id/delete", async function (req, res, next) {
+    try {
+        const [rows] = await dbConnection.execute(
+            "SELECT COUNT(*) AS count FROM listings WHERE category_id = ?", [req.params.id]);
+        if (rows[0].count > 0) {
+            return res.redirect(`/category/${req.params.id}/delete`);
+        }
+        await dbConnection.execute(
+            "DELETE FROM categories WHERE category_id = ?", [req.params.id]);
+        res.redirect("/categories");
+    } catch (e) {
+        next(e);
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });

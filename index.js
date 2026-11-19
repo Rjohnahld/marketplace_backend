@@ -207,6 +207,20 @@ app.get("/categories", async function (req, res, next) {
     }
 });
 
+app.get("/category/create", function (req, res) {
+    res.render("create-category", { pageTitle: "Add Category", category: {} });
+});
+
+app.post("/category/create", async function (req, res, next) {
+    try {
+        await dbConnection.execute(
+            "INSERT INTO categories (name) VALUES (?)", [req.body.name]);
+        res.redirect("/categories");
+    } catch (e) {
+        next(e);
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });

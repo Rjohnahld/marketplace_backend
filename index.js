@@ -83,7 +83,7 @@ app.get("/listing/create", async function (req, res, next) {
 
         res.render("create-listing", {
             pageTitle: "Add Listing",
-            listing: { listed_on: today },   
+            listing: { listed_on: today },
             sellers,
             categories
         });
@@ -95,13 +95,63 @@ app.get("/listing/create", async function (req, res, next) {
 app.post("/listing/create", async function (req, res, next) {
     try {
         const { title, description, price, listed_on, seller_id, category_id } = req.body;
-        const is_sold = req.body.is_sold ? 1 : 0;  
+        const is_sold = req.body.is_sold ? 1 : 0;
 
         const sql = `INSERT INTO listings
             (title, description, price, is_sold, listed_on, seller_id, category_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)`;
         await dbConnection.execute(sql, [
             title, description || null, price, is_sold, listed_on, seller_id, category_id
+        ]);
+
+        res.redirect("/");
+    } catch (e) {
+        next(e);
+    }
+});
+
+
+app.get("/listing/:id/edit", async function (req, res, next) {
+    try {
+        const [rows] = await dbConnection.execute(
+            "SELECT * FROM listings WHERE listing_id = ?", [req.params.id]);
+        const listing = rows[0];
+
+        if (!listing) {
+            return res.status(404).send("Listing not found");
+        }
+
+        const [sellers] = await dbConnection.execute("SELECT * FROM sellers ORDER BY name");
+        const [categories] = await dbConnection.execute("SELECT * FROM categories ORDER BY name");
+
+        res.render("edit-listing", {
+            pageTitle: "Edit Listing",
+            listing,
+            sellers,
+            categories
+        });
+    } catch (e) {
+        next(e);
+    }
+});
+
+app.post("/listing/:id/edit", async function (req, res, next) {
+    try {
+        const { title, description, price, listed_on, seller_id, category_id } = req.body;
+        const is_sold = req.body.is_sold ? 1 : 0;   
+
+        const sql = `UPDATE listings SET
+            title = ?,
+            description = ?,
+            price = ?,
+            is_sold = ?,
+            listed_on = ?,
+            seller_id = ?,
+            category_id = ?
+            WHERE listing_id = ?`;
+        await dbConnection.execute(sql, [
+            title, description || null, price, is_sold, listed_on,
+            seller_id, category_id, req.params.id
         ]);
 
         res.redirect("/");

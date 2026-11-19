@@ -97,6 +97,9 @@ app.get("/listing/create", async function (req, res, next) {
 app.post("/listing/create", async function (req, res, next) {
     try {
         const { title, description, price, listed_on, seller_id, category_id } = req.body;
+        if (!title || !price || !listed_on || !seller_id || !category_id) {
+            return res.status(400).send("Please fill in all required fields");
+        }
         const is_sold = req.body.is_sold ? 1 : 0;
 
         const sql = `INSERT INTO listings
@@ -140,6 +143,9 @@ app.post("/listing/:id/edit", async function (req, res, next) {
     try {
         const { title, description, price, listed_on, seller_id, category_id } = req.body;
         const is_sold = req.body.is_sold ? 1 : 0;
+        if (!title || !price || !listed_on || !seller_id || !category_id) {
+            return res.status(400).send("Please fill in all required fields");
+        }
 
         const sql = `UPDATE listings SET
             title = ?,

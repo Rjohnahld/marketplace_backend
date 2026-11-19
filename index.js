@@ -279,6 +279,22 @@ app.post("/category/:id/delete", async function (req, res, next) {
 });
 
 // Sellers
+app.get("/sellers", async function (req, res, next) {
+    try {
+        const [sellers] = await dbConnection.execute(
+            `SELECT sellers.seller_id, sellers.name, sellers.email, sellers.phone,
+                COUNT(listings.listing_id) AS listing_count
+             FROM sellers
+             LEFT JOIN listings ON listings.seller_id = sellers.seller_id
+             GROUP BY sellers.seller_id, sellers.name, sellers.email, sellers.phone
+             ORDER BY sellers.name`);
+        res.render("sellers", { pageTitle: "Sellers", sellers });
+    } catch (e) {
+        next(e);
+    }
+});
+
+
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

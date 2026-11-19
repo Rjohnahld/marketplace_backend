@@ -221,6 +221,30 @@ app.post("/category/create", async function (req, res, next) {
     }
 });
 
+app.get("/category/:id/edit", async function (req, res, next) {
+    try {
+        const [rows] = await dbConnection.execute(
+            "SELECT * FROM categories WHERE category_id = ?", [req.params.id]);
+        if (!rows[0]) {
+            return res.status(404).send("Category not found");
+        }
+        res.render("edit-category", { pageTitle: "Edit Category", category: rows[0] });
+    } catch (e) {
+        next(e);
+    }
+});
+
+app.post("/category/:id/edit", async function (req, res, next) {
+    try {
+        await dbConnection.execute(
+            "UPDATE categories SET name = ? WHERE category_id = ?",
+            [req.body.name, req.params.id]);
+        res.redirect("/categories");
+    } catch (e) {
+        next(e);
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });

@@ -1,0 +1,8 @@
+<h1 class="mb-4">Edit Category</h1>
+<form method="POST" class="card card-body">
+  <%- include("category-form", { category }) %>
+  <div class="d-flex gap-2">
+    <button type="submit" class="btn btn-primary">Update Category</button>
+    <a class="btn btn-outline-secondary" href="/categories">Cancel</a>
+  </div>
+</form>

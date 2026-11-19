@@ -110,7 +110,6 @@ app.post("/listing/create", async function (req, res, next) {
     }
 });
 
-
 app.get("/listing/:id/edit", async function (req, res, next) {
     try {
         const [rows] = await dbConnection.execute(
@@ -138,7 +137,7 @@ app.get("/listing/:id/edit", async function (req, res, next) {
 app.post("/listing/:id/edit", async function (req, res, next) {
     try {
         const { title, description, price, listed_on, seller_id, category_id } = req.body;
-        const is_sold = req.body.is_sold ? 1 : 0;   
+        const is_sold = req.body.is_sold ? 1 : 0;
 
         const sql = `UPDATE listings SET
             title = ?,
@@ -154,6 +153,36 @@ app.post("/listing/:id/edit", async function (req, res, next) {
             seller_id, category_id, req.params.id
         ]);
 
+        res.redirect("/");
+    } catch (e) {
+        next(e);
+    }
+});
+
+app.get("/listing/:id/delete", async function (req, res, next) {
+    try {
+        const [rows] = await dbConnection.execute(
+            `SELECT listings.listing_id, listings.title, listings.price,
+                sellers.name AS seller
+             FROM listings
+             JOIN sellers ON listings.seller_id = sellers.seller_id
+             WHERE listings.listing_id = ?`, [req.params.id]);
+        const listing = rows[0];
+
+        if (!listing) {
+            return res.status(404).send("Listing not found");
+        }
+
+        res.render("delete-listing", { pageTitle: "Delete Listing", listing });
+    } catch (e) {
+        next(e);
+    }
+});
+
+app.post("/listing/:id/delete", async function (req, res, next) {
+    try {
+        await dbConnection.execute(
+            "DELETE FROM listings WHERE listing_id = ?", [req.params.id]);
         res.redirect("/");
     } catch (e) {
         next(e);

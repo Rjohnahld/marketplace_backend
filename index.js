@@ -278,6 +278,8 @@ app.post("/category/:id/delete", async function (req, res, next) {
     }
 });
 
+// Sellers
+
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });

@@ -26,6 +26,8 @@ const dbConfig = {
 
 const dbConnection = mysql2.createPool(dbConfig);
 
+// LISTINGS PORTION
+
 app.get("/", async function (req, res, next) {
     try {
         const search = (req.query.search || "").trim();
@@ -188,6 +190,8 @@ app.post("/listing/:id/delete", async function (req, res, next) {
         next(e);
     }
 });
+
+// CATEGORIES PORTION
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

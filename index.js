@@ -192,6 +192,20 @@ app.post("/listing/:id/delete", async function (req, res, next) {
 });
 
 // CATEGORIES PORTION
+app.get("/categories", async function (req, res, next) {
+    try {
+        const [categories] = await dbConnection.execute(
+            `SELECT categories.category_id, categories.name,
+                COUNT(listings.listing_id) AS listing_count
+             FROM categories
+             LEFT JOIN listings ON listings.category_id = categories.category_id
+             GROUP BY categories.category_id, categories.name
+             ORDER BY categories.name`);
+        res.render("categories", { pageTitle: "Categories", categories });
+    } catch (e) {
+        next(e);
+    }
+});
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

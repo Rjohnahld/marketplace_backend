@@ -320,6 +320,35 @@ app.post("/seller/create", async function (req, res, next) {
     }
 });
 
+app.get("/seller/:id/edit", async function (req, res, next) {
+    try {
+        const [rows] = await dbConnection.execute(
+            "SELECT * FROM sellers WHERE seller_id = ?", [req.params.id]);
+        if (!rows[0]) {
+            return res.status(404).send("Seller not found");
+        }
+        res.render("edit-seller", { pageTitle: "Edit Seller", seller: rows[0] });
+    } catch (e) {
+        next(e);
+    }
+});
+
+app.post("/seller/:id/edit", async function (req, res, next) {
+    try {
+        const { name, email, phone } = req.body;
+        if (!name?.trim() || !email?.trim()) {
+            return res.status(400).send("Please fill in the seller's name and email");
+        }
+
+        await dbConnection.execute(
+            "UPDATE sellers SET name = ?, email = ?, phone = ? WHERE seller_id = ?",
+            [name.trim(), email.trim(), phone?.trim() || null, req.params.id]);
+        res.redirect("/sellers");
+    } catch (e) {
+        next(e);
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);

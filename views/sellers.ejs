@@ -3,20 +3,30 @@
   <a class="btn btn-primary" href="/seller/create">Add Seller</a>
 </div>
 
-<% if (sellers.length === 0) { %>
+
+<% if (sellers.length===0) { %>
   <div class="alert alert-info" role="status">There are no sellers yet.</div>
-<% } else { %>
-  <ul class="list-group">
-    <% for (let s of sellers) { %>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-          <div class="fw-semibold"><%= s.name %></div>
-          <small class="text-body-secondary">
-            <%= s.email %><% if (s.phone) { %> · <%= s.phone %><% } %>
-          </small>
-        </div>
-        <span class="badge text-bg-primary"><%= s.listing_count %></span>
-      </li>
+  <% } else { %>
+    <ul class="list-group">
+      <% for (let s of sellers) { %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-semibold">
+              <%= s.name %>
+            </div>
+            <small class="text-body-secondary">
+              <%= s.email %>
+                <% if (s.phone) { %> · <%= s.phone %>
+                    <% } %>
+            </small>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge text-bg-primary">
+              <%= s.listing_count %>
+            </span>
+            <a class="btn btn-success btn-sm" href="/seller/<%= s.seller_id %>/edit">Edit</a>
+          </div>
+        </li>
+        <% } %>
+    </ul>
     <% } %>
-  </ul>
-<% } %>

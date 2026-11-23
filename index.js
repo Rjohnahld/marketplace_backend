@@ -300,6 +300,25 @@ app.get("/sellers", async function (req, res, next) {
     }
 });
 
+app.get("/seller/create", function (req, res) {
+    res.render("create-seller", { pageTitle: "Add Seller", seller: {} });
+});
+
+app.post("/seller/create", async function (req, res, next) {
+    try {
+        const { name, email, phone } = req.body;
+        if (!name?.trim() || !email?.trim()) {
+            return res.status(400).send("Please fill in the seller's name and email");
+        }
+
+        await dbConnection.execute(
+            "INSERT INTO sellers (name, email, phone) VALUES (?, ?, ?)",
+            [name.trim(), email.trim(), phone?.trim() || null]);
+        res.redirect("/sellers");
+    } catch (e) {
+        next(e);
+    }
+});
 
 
 app.listen(port, () => {

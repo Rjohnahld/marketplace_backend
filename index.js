@@ -349,6 +349,39 @@ app.post("/seller/:id/edit", async function (req, res, next) {
     }
 });
 
+app.get("/seller/:id/delete", async function (req, res, next) {
+    try {
+        const [rows] = await dbConnection.execute(
+            `SELECT sellers.seller_id, sellers.name, sellers.email,
+                COUNT(listings.listing_id) AS listing_count
+             FROM sellers
+             LEFT JOIN listings ON listings.seller_id = sellers.seller_id
+             WHERE sellers.seller_id = ?
+             GROUP BY sellers.seller_id, sellers.name, sellers.email`, [req.params.id]);
+        if (!rows[0]) {
+            return res.status(404).send("Seller not found");
+        }
+        res.render("delete-seller", { pageTitle: "Delete Seller", seller: rows[0] });
+    } catch (e) {
+        next(e);
+    }
+});
+
+app.post("/seller/:id/delete", async function (req, res, next) {
+    try {
+        const [rows] = await dbConnection.execute(
+            "SELECT COUNT(*) AS count FROM listings WHERE seller_id = ?", [req.params.id]);
+        if (rows[0].count > 0) {
+            return res.redirect(`/seller/${req.params.id}/delete`);
+        }
+        await dbConnection.execute(
+            "DELETE FROM sellers WHERE seller_id = ?", [req.params.id]);
+        res.redirect("/sellers");
+    } catch (e) {
+        next(e);
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
